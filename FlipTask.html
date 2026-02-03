@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipTask - Управление задачами</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .form-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.75em;
+        }
+
+        .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.75em;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-timer {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.75em;
+            margin-right: 5px;
+        }
+
+        .btn-timer:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);
+        }
+
+        .tasks-container {
+            margin-top: 20px;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: slideInRight 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .task-card.deleting {
+            animation: slideOut 0.5s ease-out forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(-100px);
+                height: 0;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+            background: #f0f0f0;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-card.completed .task-description {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .task-checkbox {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .task-checkbox.checked {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .task-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .task-id {
+            font-size: 0.7em;
+            color: #999;
+            font-family: 'Courier New', monospace;
+        }
+
+        .task-timer {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff9e6;
+            border-radius: 8px;
+            border-left: 4px solid #fda085;
+        }
+
+        .timer-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fda085;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .timer-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn-start {
+            background: #4facfe;
+            color: white;
+        }
+
+        .timer-btn-pause {
+            background: #fda085;
+            color: white;
+        }
+
+        .timer-btn-stop {
+            background: #f5576c;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3c3;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .edit-mode {
+            background: #fff9e6;
+            border-color: #ffd700;
+        }
+
+        /* Модальное окно для таймера */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            margin: 0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .timer-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .timer-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .timer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .timer-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .timer-preset-btn {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .timer-preset-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            .form-container {
+                padding: 15px;
+            }
+
+            .task-card {
+                padding: 12px;
+            }
+
+            .task-content {
+                gap: 10px;
+            }
+
+            .task-checkbox {
+                width: 24px;
+                height: 24px;
+                min-width: 24px;
+            }
+
+            .task-checkbox.checked::after {
+                font-size: 14px;
+            }
+
+            .task-title {
+                font-size: 1em;
+            }
+
+            .task-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .task-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn-edit, .btn-timer, .btn-danger {
+                flex: 1;
+                font-size: 0.7em;
+                padding: 8px 10px;
+            }
+
+            .timer-display {
+                font-size: 1.2em;
+            }
+
+            .timer-controls {
+                flex-direction: column;
+            }
+
+            .timer-btn {
+                width: 100%;
+            }
+
+            .modal-content {
+                margin: 20% auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            .timer-presets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .task-actions {
+                flex-direction: column;
+            }
+
+            .btn-edit, .btn-timer, .btn-danger {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ FlipTask ✨</h1>
+        
+        <div id="message"></div>
+
+        <div class="form-container">
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskName">Название задачи</label>
+                    <input type="text" id="taskName" name="name" required placeholder="Введите название задачи...">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Описание</label>
+                    <textarea id="taskDescription" name="description" placeholder="Введите описание задачи..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Добавить задачу
+                </button>
+            </form>
+        </div>
+
+        <div class="tasks-container">
+            <div id="tasksList" class="loading">Загрузка задач...</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для таймера -->
+    <div id="timerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⏱️ Установить таймер</h2>
+                <span class="close" onclick="closeTimerModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>Время (минуты)</label>
+                <div class="timer-input-group">
+                    <input type="number" id="timerMinutes" class="timer-input" min="1" max="999" value="25" placeholder="Минуты">
+                </div>
+            </div>
+            <div class="timer-presets">
+                <button type="button" class="timer-preset-btn" onclick="setTimerPreset(15)">15 мин</button>
+                <button type="button" class="timer-preset-btn" onclick="setTimerPreset(25)">25 мин</button>
+                <button type="button" class="timer-preset-btn" onclick="setTimerPreset(30)">30 мин</button>
+                <button type="button" class="timer-preset-btn" onclick="setTimerPreset(45)">45 мин</button>
+                <button type="button" class="timer-preset-btn" onclick="setTimerPreset(60)">60 мин</button>
+                <button type="button" class="timer-preset-btn" onclick="setTimerPreset(90)">90 мин</button>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="startTimerFromModal()">Запустить таймер</button>
+        </div>
+    </div>
+
+    <script>
+        // Автоматическое определение URL API
+        function getApiBaseUrl() {
+            // 1. Проверяем параметр URL (приоритет)
+            const urlParams = new URLSearchParams(window.location.search);
+            const apiUrl = urlParams.get('api');
+            if (apiUrl) return apiUrl;
+            
+            // 2. Проверяем сохраненный URL
+            const savedApiUrl = localStorage.getItem('apiUrl');
+            if (savedApiUrl) return savedApiUrl;
+            
+            // 3. По умолчанию для локальной разработки используем порт 5221
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                // Сначала пробуем подключиться к локальному порту разработки
+                return 'http://localhost:5221';
+            }
+            // Для других хостов используем порт 8080 (Docker)
+            return `${window.location.protocol}//${hostname}:8080`;
+        }
+        
+        const API_BASE_URL = getApiBaseUrl();
+        const API_URL = `${API_BASE_URL}/api/tasks`;
+        localStorage.setItem('apiUrl', API_BASE_URL);
+        
+        // Логирование для отладки
+        console.log('🔗 API URL:', API_URL);
+        console.log('📍 Подключение к:', API_BASE_URL);
+        
+        let editingTaskId = null;
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '{}');
+        let timers = JSON.parse(localStorage.getItem('taskTimers') || '{}');
+        let currentTimerTaskId = null;
+        let timerInterval = null;
+
+        // Показать сообщение
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = type;
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Загрузить все задачи
+        async function loadTasks() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Ошибка загрузки задач');
+                const tasks = await response.json();
+                displayTasks(tasks);
+            } catch (error) {
+                document.getElementById('tasksList').innerHTML = 
+                    `<div class="error">Ошибка загрузки задач: ${error.message}</div>`;
+            }
+        }
+
+        // Отобразить задачи
+        function displayTasks(tasks) {
+            const tasksList = document.getElementById('tasksList');
+            
+            if (!tasks || tasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>Нет задач. Создайте первую задачу!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tasksList.innerHTML = tasks.map(task => {
+                const isCompleted = completedTasks[task.id] || false;
+                const hasTimer = timers[task.id] || null;
+                const timerHtml = hasTimer ? `
+                    <div class="task-timer" id="timer-${task.id}">
+                        <div class="timer-display" id="timer-display-${task.id}">${formatTime(hasTimer.remaining)}</div>
+                        <div class="timer-controls">
+                            <button class="timer-btn timer-btn-start" onclick="toggleTimer('${task.id}')" id="timer-toggle-${task.id}">
+                                ${hasTimer.running ? '⏸️ Пауза' : '▶️ Продолжить'}
+                            </button>
+                            <button class="timer-btn timer-btn-stop" onclick="stopTimer('${task.id}')">⏹️ Остановить</button>
+                        </div>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="task-card ${isCompleted ? 'completed' : ''}" id="task-${task.id}" data-id="${task.id}">
+                        <div class="task-content">
+                            <div class="task-checkbox ${isCompleted ? 'checked' : ''}" onclick="toggleComplete('${task.id}')"></div>
+                            <div class="task-info">
+                                <div class="task-header">
+                                    <div class="task-title" id="title-${task.id}">${escapeHtml(task.name)}</div>
+                                    <div class="task-actions">
+                                        <button class="btn btn-timer" onclick="openTimerModal('${task.id}')">
+                                            ⏱️ Таймер
+                                        </button>
+                                        <button class="btn btn-edit" onclick="editTask('${task.id}', '${escapeHtml(task.name)}', '${escapeHtml(task.description)}')">
+                                            ✏️ Изменить
+                                        </button>
+                                        <button class="btn btn-danger" onclick="deleteTask('${task.id}')">
+                                            🗑️ Удалить
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="task-description" id="desc-${task.id}">${escapeHtml(task.description || 'Нет описания')}</div>
+                                ${timerHtml}
+                                <div class="task-id">ID: ${task.id}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Восстановить таймеры
+            Object.keys(timers).forEach(taskId => {
+                if (timers[taskId] && timers[taskId].running) {
+                    startTimerInterval(taskId);
+                }
+            });
+        }
+
+        // Экранирование HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Переключить статус выполнения
+        function toggleComplete(taskId) {
+            completedTasks[taskId] = !completedTasks[taskId];
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+            
+            const taskCard = document.getElementById(`task-${taskId}`);
+            const checkbox = taskCard.querySelector('.task-checkbox');
+            
+            if (completedTasks[taskId]) {
+                taskCard.classList.add('completed');
+                checkbox.classList.add('checked');
+            } else {
+                taskCard.classList.remove('completed');
+                checkbox.classList.remove('checked');
+            }
+        }
+
+        // Открыть модальное окно таймера
+        function openTimerModal(taskId) {
+            currentTimerTaskId = taskId;
+            document.getElementById('timerModal').style.display = 'block';
+        }
+
+        // Закрыть модальное окно таймера
+        function closeTimerModal() {
+            document.getElementById('timerModal').style.display = 'none';
+            currentTimerTaskId = null;
+        }
+
+        // Установить пресет таймера
+        function setTimerPreset(minutes) {
+            document.getElementById('timerMinutes').value = minutes;
+        }
+
+        // Запустить таймер из модального окна
+        function startTimerFromModal() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value);
+            if (!minutes || minutes < 1) {
+                showMessage('Введите корректное количество минут', 'error');
+                return;
+            }
+
+            if (!currentTimerTaskId) {
+                showMessage('Ошибка: задача не выбрана', 'error');
+                return;
+            }
+
+            const totalSeconds = minutes * 60;
+            timers[currentTimerTaskId] = {
+                total: totalSeconds,
+                remaining: totalSeconds,
+                running: true
+            };
+            localStorage.setItem('taskTimers', JSON.stringify(timers));
+            
+            closeTimerModal();
+            loadTasks();
+            showMessage(`Таймер установлен на ${minutes} минут`, 'success');
+        }
+
+        // Переключить таймер (пауза/продолжить)
+        function toggleTimer(taskId) {
+            if (!timers[taskId]) return;
+
+            timers[taskId].running = !timers[taskId].running;
+            localStorage.setItem('taskTimers', JSON.stringify(timers));
+
+            if (timers[taskId].running) {
+                startTimerInterval(taskId);
+            } else {
+                stopTimerInterval(taskId);
+            }
+
+            const toggleBtn = document.getElementById(`timer-toggle-${taskId}`);
+            if (toggleBtn) {
+                toggleBtn.textContent = timers[taskId].running ? '⏸️ Пауза' : '▶️ Продолжить';
+            }
+        }
+
+        // Остановить таймер
+        function stopTimer(taskId) {
+            if (timers[taskId]) {
+                delete timers[taskId];
+                localStorage.setItem('taskTimers', JSON.stringify(timers));
+                stopTimerInterval(taskId);
+                loadTasks();
+                showMessage('Таймер остановлен', 'success');
+            }
+        }
+
+        // Запустить интервал таймера
+        function startTimerInterval(taskId) {
+            stopTimerInterval(taskId);
+
+            timerInterval = setInterval(() => {
+                if (!timers[taskId] || !timers[taskId].running) {
+                    stopTimerInterval(taskId);
+                    return;
+                }
+
+                timers[taskId].remaining--;
+                localStorage.setItem('taskTimers', JSON.stringify(timers));
+
+                const display = document.getElementById(`timer-display-${taskId}`);
+                if (display) {
+                    display.textContent = formatTime(timers[taskId].remaining);
+                }
+
+                if (timers[taskId].remaining <= 0) {
+                    stopTimer(taskId);
+                    showMessage('⏰ Время вышло!', 'success');
+                    // Можно добавить звуковое уведомление
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('FlipTask', {
+                            body: 'Время вышло!',
+                            icon: '⏰'
+                        });
+                    }
+                }
+            }, 1000);
+        }
+
+        // Остановить интервал таймера
+        function stopTimerInterval(taskId) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Форматировать время
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Создать задачу
+        async function createTask(name, description) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, description })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error || 'Ошибка создания задачи');
+                }
+
+                const task = await response.json();
+                showMessage('Задача успешно создана!', 'success');
+                document.getElementById('taskForm').reset();
+                loadTasks();
+            } catch (error) {
+                showMessage(`Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        // Редактировать задачу
+        function editTask(id, name, description) {
+            editingTaskId = id;
+            document.getElementById('taskName').value = name;
+            document.getElementById('taskDescription').value = description;
+            document.getElementById('submitBtn').textContent = 'Сохранить изменения';
+            
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.classList.remove('edit-mode');
+            });
+            document.getElementById(`task-${id}`).classList.add('edit-mode');
+            
+            document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Обновить задачу
+        async function updateTask(id, name, description) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, description })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error || 'Ошибка обновления задачи');
+                }
+
+                showMessage('Задача успешно обновлена!', 'success');
+                editingTaskId = null;
+                document.getElementById('taskForm').reset();
+                document.getElementById('submitBtn').textContent = 'Добавить задачу';
+                document.querySelectorAll('.task-card').forEach(card => {
+                    card.classList.remove('edit-mode');
+                });
+                loadTasks();
+            } catch (error) {
+                showMessage(`Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        // Удалить задачу
+        async function deleteTask(id) {
+            if (!confirm('Вы уверены, что хотите удалить эту задачу?')) {
+                return;
+            }
+
+            const taskCard = document.getElementById(`task-${id}`);
+            taskCard.classList.add('deleting');
+
+            // Удалить связанные данные
+            delete completedTasks[id];
+            delete timers[id];
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+            localStorage.setItem('taskTimers', JSON.stringify(timers));
+            stopTimerInterval(id);
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка удаления задачи');
+                }
+
+                setTimeout(() => {
+                    showMessage('Задача успешно удалена!', 'success');
+                    loadTasks();
+                }, 500);
+            } catch (error) {
+                taskCard.classList.remove('deleting');
+                showMessage(`Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        // Обработка формы
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('taskName').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+
+            if (!name) {
+                showMessage('Пожалуйста, введите название задачи', 'error');
+                return;
+            }
+
+            if (editingTaskId) {
+                await updateTask(editingTaskId, name, description);
+            } else {
+                await createTask(name, description);
+            }
+        });
+
+        // Закрыть модальное окно при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('timerModal');
+            if (event.target == modal) {
+                closeTimerModal();
+            }
+        }
+
+        // Запросить разрешение на уведомления
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Загрузить задачи при загрузке страницы
+        loadTasks();
+    </script>
+</body>
+</html>
