@@ -1,0 +1,6 @@
+@To_Do_Flip_HostAddress = http://localhost:5221
+
+GET {{To_Do_Flip_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

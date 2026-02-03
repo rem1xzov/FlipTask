@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: todo_flip_postgres
+    environment:
+      POSTGRES_DB: To_Do_Flip
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - todo_flip_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todo_flip_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=To_Do_Flip;Username=postgres;Password=123456
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - todo_flip_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  todo_flip_network:
+    driver: bridge

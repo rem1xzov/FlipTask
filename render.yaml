@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: fliptask-api
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: fliptask-db
+          property: connectionString
+
+databases:
+  - name: fliptask-db
+    plan: free
+    databaseName: To_Do_Flip
+    user: postgres
