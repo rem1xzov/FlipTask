@@ -66,7 +66,7 @@ To-Do_Flip/
 
 1. **Клонируйте репозиторий**
    ```bash
-   git clone https://github.com/ваш-username/To-Do_Flip.git
+   git clone https://github.com/rem1xzov/To-Do_Flip.git
    cd To-Do_Flip
    ```
 
@@ -76,7 +76,7 @@ To-Do_Flip/
    ```json
    {
      "ConnectionStrings": {
-       "DefaultConnection": "Host=localhost;Port=5432;Database=To_Do_Flip;Username=postgres;Password=ваш_пароль"
+       "DefaultConnection": "Host=localhost;Port=5432;Database=To_Do_Flip;Username=postgres;Password=******"
      }
    }
    ```
@@ -267,10 +267,5 @@ dotnet ef database update --startup-project ..\To-Do_Flip\To-Do_Flip.csproj --co
 - .NET команда за отличный фреймворк
 - Сообщество разработчиков за вдохновение
 
-## 📞 Контакты
-
-Если у вас есть вопросы или предложения, создайте [Issue](https://github.com/ваш-username/To-Do_Flip/issues) или [Pull Request](https://github.com/ваш-username/To-Do_Flip/pulls).
-
----
 
 ⭐ Если проект вам понравился, поставьте звезду!
